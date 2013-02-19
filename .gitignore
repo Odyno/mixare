@@ -2,4 +2,6 @@
 /gen
 /.sonar
 /.settings
+/target
 sonar-project.properties
+
