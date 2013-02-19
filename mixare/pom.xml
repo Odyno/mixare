@@ -8,7 +8,11 @@
 	<artifactId>mixare</artifactId>
 	<packaging>apk</packaging>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>Your Android project Maven Enabled</name>
+	<name>Mixare</name>
+        <description>The Mixare android implementation</description>
+
+
+
 	<dependencies>
 		<dependency>
 			<groupId>com.google.android</groupId>
@@ -16,9 +20,16 @@
 			<version>2.3.3</version>
 			<scope>provided</scope>
 		</dependency>
+<dependency>
+  <groupId>com.google.android.maps</groupId>
+  <artifactId>maps</artifactId>
+  <version>10_r2</version>
+  <scope>provided</scope>
+</dependency>
 		<dependency>
 			<groupId>org.mixare</groupId>
 			<artifactId>mixarelib</artifactId>
+                        <type>apklib</type>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
@@ -43,13 +54,6 @@
 				<version>3.5.0</version>
 				<configuration>
 					<release>false</release>
-					<sdk>
-						<path>${env.ANDROID_HOME}</path>
-						<platform>4</platform>
-					</sdk>
-					<emulator>
-						<avd>16</avd>
-					</emulator>
 					<undeployBeforeDeploy>true</undeployBeforeDeploy>
 				</configuration>
 				<extensions>true</extensions>
