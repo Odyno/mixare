@@ -8,8 +8,8 @@
 	<artifactId>mixarelib</artifactId>
 	<packaging>apklib</packaging>
 	<version>0.0.1-SNAPSHOT</version>
-        <name>Mixare-lib</name>
-	<description>The core library of Mixare project</description>
+	<name>mixarelib</name>
+        <description>The core library of Mixare project</description>
 
 	<dependencies>
 		<dependency>
@@ -40,10 +40,6 @@
 				<version>3.5.0</version>
 				<configuration>
 					<release>false</release>
-					<sdk>
-						<path>${env.ANDROID_HOME}</path>
-						<platform>4</platform>
-					</sdk>
 					<undeployBeforeDeploy>true</undeployBeforeDeploy>
 				</configuration>
 				<extensions>true</extensions>

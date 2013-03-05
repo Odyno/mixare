@@ -8,7 +8,7 @@
     <artifactId>mixare-android</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>Mixare Projects</name>
+    <name>Mixare (mix Augmented Reality Engine) Projects</name>
     <description>Mixare (mix Augmented Reality Engine) is a free open source augmented reality browser, which is published under the GPLv3.</description>
 
     <modules>
@@ -73,7 +73,6 @@
                     <groupId>com.jayway.maven.plugins.android.generation2</groupId>
                     <artifactId>android-maven-plugin</artifactId>
                     <version>3.5.0</version>
-
                 </plugin>
                 <plugin>
                     <artifactId>maven-clean-plugin</artifactId>
