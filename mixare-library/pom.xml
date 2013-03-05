@@ -40,6 +40,9 @@
 				<version>3.5.0</version>
 				<configuration>
 					<release>false</release>
+		    <sdk>
+                        <platform>2.3.3</platform>
+                    </sdk>
 					<undeployBeforeDeploy>true</undeployBeforeDeploy>
 				</configuration>
 				<extensions>true</extensions>
