@@ -8,7 +8,8 @@
     <artifactId>mixare-android</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>Mixare (mix Augmented Reality Engine) is a free open source augmented reality browser, which is published under the GPLv3.</name>
+    <name>Mixare Projects</name>
+    <description>Mixare (mix Augmented Reality Engine) is a free open source augmented reality browser, which is published under the GPLv3.</description>
 
     <modules>
         <module>mixare-library</module>

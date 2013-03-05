@@ -8,7 +8,8 @@
 	<artifactId>mixare</artifactId>
 	<packaging>apk</packaging>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>Your Android project Maven Enabled</name>
+	<name>Mixare</name>
+	<description>Your Android Mixare Applications</description>
 	<dependencies>
 		<dependency>
 			<groupId>com.google.android</groupId>
@@ -20,6 +21,7 @@
 			<groupId>org.mixare</groupId>
 			<artifactId>mixarelib</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
+                        <type>apklib</type>
 		</dependency>
 	</dependencies>
 
@@ -47,9 +49,6 @@
 						<path>${env.ANDROID_HOME}</path>
 						<platform>4</platform>
 					</sdk>
-					<emulator>
-						<avd>16</avd>
-					</emulator>
 					<undeployBeforeDeploy>true</undeployBeforeDeploy>
 				</configuration>
 				<extensions>true</extensions>

@@ -8,7 +8,8 @@
 	<artifactId>mixarelib</artifactId>
 	<packaging>apklib</packaging>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>The core library of Mixare project</name>
+        <name>Mixare-lib</name>
+	<description>The core library of Mixare project</description>
 
 	<dependencies>
 		<dependency>
@@ -43,9 +44,6 @@
 						<path>${env.ANDROID_HOME}</path>
 						<platform>4</platform>
 					</sdk>
-					<emulator>
-						<avd>16</avd>
-					</emulator>
 					<undeployBeforeDeploy>true</undeployBeforeDeploy>
 				</configuration>
 				<extensions>true</extensions>

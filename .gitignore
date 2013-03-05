@@ -1,7 +1,6 @@
 /bin
 /gen
-/.sonar
-/.settings
-/target
+.sonar
 sonar-project.properties
-
+target/
+.settings/
