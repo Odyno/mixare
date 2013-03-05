@@ -10,6 +10,6 @@ before_install:
   - android update sdk --no-ui --filter 1,2,10,45 
   #Install specific AddOns
   - git clone git://github.com/mosabua/maven-android-sdk-deployer.git
-  - cd maven-android-sdk-deployer
+  - cd maven-android-sdk-deployer/add-ons
   - mvn install -P 2.3.3
 
