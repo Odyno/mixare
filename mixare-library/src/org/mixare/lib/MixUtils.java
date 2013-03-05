@@ -22,15 +22,32 @@ import android.util.FloatMath;
 
 /**
  * This class has the ability to calculate the declination of a line between two
- * points. It is able to check if a point is in a given rectangle and it also can
- * make a String out of a given distance-value which contains number and unit.
+ * points. It is able to check if a point is in a given rectangle and it also
+ * can make a String out of a given distance-value which contains number and
+ * unit.
  */
 public class MixUtils {
+	/**
+	 * 
+	 * @param action
+	 * @return
+	 */
 	public static String parseAction(String action) {
 		return (action.substring(action.indexOf(':') + 1, action.length()))
 				.trim();
 	}
 
+	/**
+	 * Formats a given distance in meters.
+	 * 
+	 * Example:
+	 * 		400  -> 400m
+	 * 		1000 -> 1.0km
+	 * 		2500 -> 2.5km
+	 * 
+	 * @param meters The distance to format in meters
+	 * @return The formated distance as String
+	 */
 	public static String formatDist(float meters) {
 		if (meters < 1000) {
 			return ((int) meters) + "m";
@@ -41,17 +58,33 @@ public class MixUtils {
 		}
 	}
 
+	/**
+	 * Helper method that shorten title and format string to display distance
+	 * 
+	 * @param title
+	 * @param distance
+	 * @return String formated Title representation
+	 */
+	public static synchronized String shortenTitle(String title,
+			final double distance) {
+		if (title.length() > 10) {
+			title = title.substring(0, 10) + "…";
+		}
+
+		return String.valueOf(title.trim() + " (" + formatDist((float) distance) + ")");
+	}
+
 	static String formatDec(float val, int dec) {
 		int factor = (int) Math.pow(10, dec);
 
-		int front = (int) (val );
-		int back = (int) Math.abs(val * (factor) ) % factor;
+		int front = (int) (val);
+		int back = (int) Math.abs(val * (factor)) % factor;
 
 		return front + "." + back;
 	}
 
 	public static boolean pointInside(float P_x, float P_y, float r_x,
-		float r_y, float r_w, float r_h) {
+			float r_y, float r_w, float r_h) {
 		return (P_x > r_x && P_x < r_x + r_w && P_y > r_y && P_y < r_y + r_h);
 	}
 
@@ -66,5 +99,38 @@ public class MixUtils {
 		angle = (tmpv_y < 0) ? angle * -1 : angle;
 
 		return angle;
+	}
+
+	/**
+	 * Calculate Zoom level based on the relation between distance and earth
+	 * equator. The equation used is
+	 * 
+	 * <pre>
+	 * log2(E / D) + 1
+	 * </pre>
+	 * 
+	 * - Where E is 40075 (Earth Equator in KM) - D is the distance to be
+	 * covered
+	 * 
+	 * Max will be 21 KM ZoomLevelRate, which is about 0.01 distance. Min will
+	 * be 1 KM ZoomLevelRate, which is about 40000 distance.
+	 * 
+	 * If you want to calculate ZoomLevel rate against radius, divide radius by
+	 * 2 before calling this function. This is Helpful when dealing with maps
+	 * base 2 factor.
+	 * 
+	 * @param float distance
+	 * @return int zoomLevel rate base 2
+	 */
+	public static synchronized int earthEquatorToZoomLevel(final float distance) {
+		final float E = 40075f; // Earth Equator in KM
+		int zoom = 1;
+		try {
+			zoom = (int) Math.round(Math.log(E / distance) / Math.log(2.0)) + 1;
+			zoom = (zoom < 1) ? 1 : zoom;
+		} catch (Exception e) {
+			zoom = 15;
+		}
+		return (zoom > 21 ? 21 : zoom);
 	}
 }

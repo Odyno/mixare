@@ -22,16 +22,20 @@ import java.util.List;
 
 import org.mixare.MixContext;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
+import android.view.WindowManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
@@ -58,8 +62,9 @@ class WebPageMgrImpl implements WebContentManager {
 	public void loadWebPage(String url, Context context) throws Exception {
 		WebView webview = new WebView(context);
 		webview.getSettings().setJavaScriptEnabled(true);
-
-		final Dialog d = new Dialog(context) {
+		webview.getSettings().setBuiltInZoomControls(true);
+		
+		final Dialog d = new Dialog(context, android.R.style.Theme_Translucent_NoTitleBar) {
 			public boolean onKeyDown(int keyCode, KeyEvent event) {
 				if (keyCode == KeyEvent.KEYCODE_BACK)
 					this.dismiss();
@@ -69,7 +74,11 @@ class WebPageMgrImpl implements WebContentManager {
 
 		webview.setWebViewClient(new WebViewClient() {
 			public boolean shouldOverrideUrlLoading(WebView view, String url) {
-				view.loadUrl(url);
+				if (!processUrl(url, mixContext.getActualMixView())) { // if the url could not be processed by
+					 // another intent
+					d.show();
+					view.loadUrl(url);
+				}
 				return true;
 			}
 
@@ -77,7 +86,9 @@ class WebPageMgrImpl implements WebContentManager {
 			public void onPageFinished(WebView view, String url) {
 				if (url.endsWith("return")) {
 					d.dismiss();
-					mixContext.getActualMixView().repaint();
+					mixContext.getActualMixView().setZoomLevel();
+					mixContext.getActualMixView().refreshDownload();
+					mixContext.getActualMixView().refresh();
 				} else {
 					super.onPageFinished(view, url);
 				}
@@ -85,11 +96,24 @@ class WebPageMgrImpl implements WebContentManager {
 
 		});
 
+		DisplayMetrics displaymetrics = new DisplayMetrics();
+		((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+		int height = displaymetrics.heightPixels - 60;
+		int width = displaymetrics.widthPixels - 20;
+
+		WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+	    lp.copyFrom(d.getWindow().getAttributes());
+	    lp.width = width;
+	    lp.height = height;
+	
 		d.requestWindowFeature(Window.FEATURE_NO_TITLE);
+		int dialogHeight = d.getWindow().getAttributes().height;
+		int dialogWidth = d.getWindow().getAttributes().width;
 		d.getWindow().setGravity(Gravity.BOTTOM);
 		d.addContentView(webview, new FrameLayout.LayoutParams(
-				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
+				dialogWidth, dialogHeight,
 				Gravity.BOTTOM));
+		d.getWindow().setAttributes(lp);	
 
 		if (!processUrl(url, mixContext.getActualMixView())) { // if the url could not be processed by
 										 // another intent
@@ -99,8 +123,8 @@ class WebPageMgrImpl implements WebContentManager {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.mixare.mgr.webcontent.WebContentManager#processUrl(java.lang.String, android.content.Context)
-	 */
+     * @see org.mixare.mgr.webcontent.WebContentManager#processUrl(java.lang.String, android.content.Context)
+     */
 	public boolean processUrl(String url, Context ctx) {
 		// get available packages from the given url
 		List<ResolveInfo> resolveInfos = getAvailablePackagesForUrl(url, ctx);
@@ -109,22 +133,27 @@ class WebPageMgrImpl implements WebContentManager {
 		List<ResolveInfo> webBrowsers = getAvailablePackagesForUrl(
 				"http://www.google.com", ctx);
 		for (ResolveInfo resolveInfo : resolveInfos) {
-			for (ResolveInfo webBrowser : webBrowsers) { // check if the found
-															// intent is not a
-															// webbrowser
-				if (!resolveInfo.activityInfo.packageName
+
+			boolean found = false;
+			for (ResolveInfo webBrowser : webBrowsers) {
+				if (resolveInfo.activityInfo.packageName
 						.equals(webBrowser.activityInfo.packageName)) {
-					Intent intent = new Intent(Intent.ACTION_VIEW);
-					intent.setData(Uri.parse(url));
-					intent.setClassName(resolveInfo.activityInfo.packageName,
-							resolveInfo.activityInfo.name);
-					ctx.startActivity(intent);
-					return true;
+					found = true;
+					break;
 				}
+			}
+			if (!found) {
+				Intent intent = new Intent(Intent.ACTION_VIEW);
+				intent.setData(Uri.parse(url));
+				intent.setClassName(resolveInfo.activityInfo.packageName,
+						resolveInfo.activityInfo.name);
+				ctx.startActivity(intent);
+				return true;
 			}
 		}
 		return false;
 	}
+
 
 	private List<ResolveInfo> getAvailablePackagesForUrl(String url, Context ctx) {
 		PackageManager packageManager = ctx.getPackageManager();

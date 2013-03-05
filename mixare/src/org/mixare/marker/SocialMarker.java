@@ -17,8 +17,9 @@
  * this program. If not, see <http://www.gnu.org/licenses/>
  */
 
-package org.mixare;
+package org.mixare.marker;
 
+import org.mixare.MixView;
 import org.mixare.lib.gui.PaintScreen;
 
 import android.location.Location;
@@ -51,7 +52,7 @@ public class SocialMarker extends LocalMarker {
 		// we want the social markers to be on the upper part of
 		// your surrounding sphere 
 		double altitude = curGPSFix.getAltitude()+Math.sin(0.35)*distance+Math.sin(0.4)*(distance/(MixView.getDataView().getRadius()*1000f/distance));
-		mGeoLoc.setAltitude(altitude);
+		getmGeoLoc().setAltitude(altitude);
 		super.update(curGPSFix);
 
 	}

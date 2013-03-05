@@ -1,6 +1,14 @@
-/bin
-/gen
+#maven
+target/
+
+#sonar
 .sonar
 sonar-project.properties
-*target/
+
+#eclipse
 .settings/
+bin/
+gen/
+
+#extra 
+*.jar
