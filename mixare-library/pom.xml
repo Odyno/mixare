@@ -8,7 +8,7 @@
 	<artifactId>mixarelib</artifactId>
 	<packaging>apklib</packaging>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>mixarelib</name>
+	<name>Mixare-lib</name>
         <description>The core library of Mixare project</description>
 
 	<dependencies>

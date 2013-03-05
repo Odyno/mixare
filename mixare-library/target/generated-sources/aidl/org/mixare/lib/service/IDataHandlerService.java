@@ -1,6 +1,6 @@
 /*
  * This file is auto-generated.  DO NOT MODIFY.
- * Original file: /home/odyno/Workspace/GITHUB/mixare/mixare/mixare-library/src/org/mixare/lib/service/IDataHandlerService.aidl
+ * Original file: /usr/Workspaces/WorkspacePersonale/GITHUB/Mixare-Repo/mixare/mixare-library/src/org/mixare/lib/service/IDataHandlerService.aidl
  */
 package org.mixare.lib.service;
 /**
