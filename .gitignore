@@ -2,5 +2,5 @@
 /gen
 .sonar
 sonar-project.properties
-target/
+*target/
 .settings/
