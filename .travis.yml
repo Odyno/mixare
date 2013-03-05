@@ -16,5 +16,6 @@ before_install:
   - git clone git://github.com/mosabua/maven-android-sdk-deployer.git
   - cd maven-android-sdk-deployer/add-ons
   - mvn install -P 2.3.3
+  - cd ../..
   - echo -e "\n\n\n\n---------------- ENVIROMENT DONE! ---------------- \n\n\n\n"
 
