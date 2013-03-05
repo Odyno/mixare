@@ -12,15 +12,13 @@
     <description>Mixare (mix Augmented Reality Engine) is a free open source augmented reality browser, which is published under the GPLv3.</description>
 
     <modules>
-        <module>mixare-library</module>
         <module>mixare</module>
-      <!--
+        <module>mixare-library</module>
+        <module>plugins/mixare-barcode-plugin</module>
         <module>plugins/mixare-arena-processor-plugin</module>
         <module>plugins/mixare-arena-splashscreen-plugin</module>
-        <module>plugins/mixare-barcode-plugin</module>
         <module>plugins/mixare-imagemarker-plugin</module>
         <module>plugins/mixare-mock-location-plugin</module>
-      -->
     </modules>
 
     <url>http://www.mixare.org</url>
