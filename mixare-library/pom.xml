@@ -10,12 +10,12 @@
 	<description>The core library of Mixare project</description>
 
 	<dependencies>
-		<dependency>
-			<groupId>com.google.android</groupId>
-			<artifactId>android</artifactId>
-			<version>2.3.3</version>
-			<scope>provided</scope>
-		</dependency>
+<dependency>
+  <groupId>android</groupId>
+  <artifactId>android</artifactId>
+  <version>2.3.3_r2</version>
+  <scope>provided</scope>
+</dependency>
 	</dependencies>
 
 	<build>
