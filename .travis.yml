@@ -7,7 +7,7 @@ before_install:
   - export ANDROID_HOME=`pwd`/android-sdk-linux
   - export PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform
   # only update the sdk for the tools and platform-tools (1,2) and whatever api level (run "android list sdk" to get the full list)
-  - android update sdk --obsolete --all --no-ui --filter 1,2,6,44
+  - android update sdk --obsolete --all --no-ui --filter 1,2,6,11,44
   # Install specific AddOns
   - git clone git://github.com/mosabua/maven-android-sdk-deployer.git
   - cd maven-android-sdk-deployer/platforms
