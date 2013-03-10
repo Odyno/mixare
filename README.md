@@ -9,7 +9,7 @@ Clone to support Mixare (mix Augmented Reality Engine) a free open source augmen
 
 HowTo Build with Maven
 ======================
-This step is the same used on Travis CI: [Read more words!](.travis.yml)
+This step is the same used on Travis CI: [Read more from travis file](.travis.yml)
 
 * Download a AndroidSDK  ( wget http://dl.google.com/android/android-sdk_r21.1-linux.tgz ; tar xvzf android-sdk_r21.1-linux.tgz
 * Set Eviroment Variable ( export ANDROID_HOME=$(pwd)/android-sdk-linux; export PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform
