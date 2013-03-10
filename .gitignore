@@ -15,7 +15,6 @@
 *.dmg
 *.gz
 *.iso
-*.jar
 *.rar
 *.tar
 *.zip
@@ -82,4 +81,4 @@ sonar-project.properties
 # Sharlock
 JakeWharton-ActionBarSherlock-*/
 !mapsforge-map-0.3.0-jar-with-dependencies.jar
-
+#*.jar
