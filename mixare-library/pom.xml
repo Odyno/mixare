@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project 
-    xmlns="http://maven.apache.org/POM/4.0.0" 
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.mixare</groupId>
@@ -9,7 +7,7 @@
 	<packaging>apklib</packaging>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>Mixare-lib</name>
-        <description>The core library of Mixare project</description>
+	<description>The core library of Mixare project</description>
 
 	<dependencies>
 		<dependency>
@@ -40,9 +38,9 @@
 				<version>3.5.0</version>
 				<configuration>
 					<release>false</release>
-		    <sdk>
-                        <platform>2.3.3</platform>
-                    </sdk>
+					<sdk>
+						<platform>2.3.3</platform>
+					</sdk>
 					<undeployBeforeDeploy>true</undeployBeforeDeploy>
 				</configuration>
 				<extensions>true</extensions>
