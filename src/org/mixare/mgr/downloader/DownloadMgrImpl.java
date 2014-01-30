@@ -20,26 +20,28 @@ package org.mixare.mgr.downloader;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import org.mixare.MixContext;
 import org.mixare.MixView;
 import org.mixare.data.convert.DataConvertor;
 import org.mixare.lib.marker.Marker;
 import org.mixare.mgr.HttpTools;
+import org.mixare.utils.TwitterClient;
 
 import android.util.Log;
 
 class DownloadMgrImpl implements Runnable, DownloadManager {
 
-	private boolean stop = false;
+	private static boolean stop = false;
 	private MixContext ctx;
 	private DownloadManagerState state = DownloadManagerState.Confused;
 	private LinkedBlockingQueue<ManagedDownloadRequest> todoList = new LinkedBlockingQueue<ManagedDownloadRequest>();
 	private ConcurrentHashMap<String, DownloadResult> doneList = new ConcurrentHashMap<String, DownloadResult>();
-	private Executor executor = Executors.newSingleThreadExecutor();
+	private ExecutorService executor = Executors.newSingleThreadExecutor();
 	
 
 	public DownloadMgrImpl(MixContext ctx) {
@@ -57,20 +59,27 @@ class DownloadMgrImpl implements Runnable, DownloadManager {
 	 */
 	public void run() {
 		ManagedDownloadRequest mRequest;
-		DownloadResult result;
+		DownloadResult result = null;
 		stop = false;
 		while (!stop) {
 			state=DownloadManagerState.OnLine;
 			// Wait for proceed
 			while (!stop) {
 				try {
-					mRequest = todoList.take();
+					mRequest = todoList.poll(10, TimeUnit.SECONDS );
+					if(mRequest == null){
+						ctx.getActualMixView().refresh();
+						return;
+					}
 					state=DownloadManagerState.Downloading;
 					result = processRequest(mRequest);
 				} catch (InterruptedException e) {
 					result = new DownloadResult();
 					result.setError(e, null);
+				}catch (Exception ex){
+					//do nothing terminating
 				}
+				if (result != null)
 				doneList.put(result.getIdOfDownloadRequest(), result);
 				state=DownloadManagerState.OnLine;
 			}
@@ -79,9 +88,12 @@ class DownloadMgrImpl implements Runnable, DownloadManager {
 	}
 
 	private DownloadResult processRequest(ManagedDownloadRequest mRequest) {
-		DownloadRequest request = mRequest.getOriginalRequest();
-		final DownloadResult result = new DownloadResult();
-		try {
+		DownloadResult result = null;
+		DownloadRequest request = null;
+		if (!stop){
+			try{
+		 request = mRequest.getOriginalRequest();
+		 result = new DownloadResult();
 			if (request == null) {
 				throw new Exception("Request is null");
 			}
@@ -89,10 +101,18 @@ class DownloadMgrImpl implements Runnable, DownloadManager {
 			if (!request.getSource().isWellFormed()) {
 				throw new Exception("Datasource in not WellFormed");
 			}
+			
+			/*
+			 * patch for Twitter client inserted to catch data
+			 */
+			String pageContent = null;
+			if (request.getSource().getName().toUpperCase().equals("TWITTER"))
+			{
+				pageContent = TwitterClient.queryData();//JSON format
+			}
+			else pageContent = HttpTools.getPageContent(request);
 
-			String pageContent = HttpTools.getPageContent(request,
-					ctx.getContentResolver());
-
+			
 			if (pageContent != null) {
 				// try loading Marker data
 				List<Marker> markers = DataConvertor.getInstance().load(
@@ -105,7 +125,15 @@ class DownloadMgrImpl implements Runnable, DownloadManager {
 			result.setError(ex, request);
 			Log.w(MixContext.TAG, "ERROR ON DOWNLOAD REQUEST", ex);
 		}
+	}
 		return result;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 */
+	public void shutDown(){
+		executor.shutdown();
 	}
 
 	/*
@@ -190,7 +218,7 @@ class DownloadMgrImpl implements Runnable, DownloadManager {
 	 * @see org.mixare.mgr.downloader.DownloadManager#goOnline()
 	 */
 	public void switchOn() {
-		if (DownloadManagerState.OffLine.equals(getState())){
+		if (DownloadManagerState.OffLine.equals(getState()) || stop==true){
 		    executor.execute(this);
 		}else{
 			Log.i(MixView.TAG, "DownloadManager already started");
@@ -199,13 +227,11 @@ class DownloadMgrImpl implements Runnable, DownloadManager {
 
 	public void switchOff() {
 		stop=true;
+		state=DownloadManagerState.OffLine;
 	}
 
 	@Override
 	public DownloadManagerState getState() {
 		return state;
 	}
-
-	
-
 }

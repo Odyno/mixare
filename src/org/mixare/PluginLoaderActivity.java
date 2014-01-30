@@ -1,14 +1,22 @@
 package org.mixare;
 
+import java.util.List;
+
+import org.mixare.data.DataSource;
 import org.mixare.data.DataSourceStorage;
+import org.mixare.plugin.Plugin;
 import org.mixare.plugin.PluginLoader;
+import org.mixare.plugin.PluginStatus;
 import org.mixare.plugin.PluginType;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.Window;
 import android.view.WindowManager;
@@ -23,22 +31,38 @@ public class PluginLoaderActivity extends Activity {
 
 	private static final int SPLASHTIME = 2000; // 2 seconds
 	public static final int SCANNER_REQUEST_CODE = 0;
+	private static final String CLOSE_ACTIVITY_CALL = "closed";
 	protected Handler exitHandler = null;
 	protected Runnable exitRunnable = null;
-
+	
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		Bundle extras = getIntent().getExtras();
+		if (extras != null){
+			try {
+				if (extras.containsKey("AppName")) {
+					getInstalledPluginsByName(extras.getString("AppName"));
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+
+		DataSourceStorage.init(this);
+		PluginLoader.getInstance().setActivity(this);
+		PluginLoader.getInstance().unBindServices();
+		PluginLoader.newInstance();
 		PluginLoader.getInstance().setActivity(this);
 		PluginLoader.getInstance().loadPlugin(PluginType.BOOTSTRAP_PHASE_1);
-		DataSourceStorage.init(this);
 
 		if (arePendingActivitiesFinished()) {
 			startDefaultSplashScreen();
 		}
 	}
-
+	
 	private void startDefaultSplashScreen() {
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -48,7 +72,7 @@ public class PluginLoaderActivity extends Activity {
 		// Runnable exiting the splash screen and launching the menu
 		exitRunnable = new Runnable() {
 			public void run() {
-				exitSplash();
+				startMixare();
 			}
 		};
 		// Run the exitRunnable in in _splashTime ms
@@ -59,22 +83,28 @@ public class PluginLoaderActivity extends Activity {
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		if (event.getAction() == MotionEvent.ACTION_DOWN) {
-			// Remove the exitRunnable callback from the handler queue
-			exitHandler.removeCallbacks(exitRunnable);
-			// Run the exit code manually
-			exitSplash();
+			if(exitHandler != null){
+				//only call this when the default splashscreen is used
+				exitHandler.removeCallbacks(exitRunnable);
+			}
+			startMixare();
 		}
 		return true;
-	}
-
-	private void exitSplash() {
-		loadPlugins();
-		startMixare();
 	}
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
+		if(data != null && data.getExtras() != null && data.getExtras().getString(CLOSE_ACTIVITY_CALL) != null){
+			//back button was pressed, close mixare now.
+			finish();
+			return;
+		}
+		
+		if (requestCode == 0) {
+			finish();
+			return;
+		}
 
 		processDataSourceFromPlugin(data);
 		procesCustomSplashScreen(data);
@@ -84,14 +114,17 @@ public class PluginLoaderActivity extends Activity {
 	}
 
 	private void startMixare() {
+		if(!PluginLoader.getInstance().isPluginTypeLoaded(PluginType.MARKER)){
+			loadPlugins();
+		}
 		if (arePendingActivitiesFinished()) {
-			startActivity(new Intent(this, MixView.class));
+			startActivityForResult(new Intent(this, MixView.class),0);
 			finish();
 		}
 	}
 
 	private boolean arePendingActivitiesFinished() {
-		return (PluginLoader.getInstance().getPendingActivitiesOnResult() == 0);
+		return (PluginLoader.getInstance().getPendingActivitiesOnResult() <= 0);
 	}
 
 	private void processDataSourceFromPlugin(Intent data) {
@@ -102,10 +135,10 @@ public class PluginLoaderActivity extends Activity {
 			// clear all datasources for a reinit
 			for (int i = 0; i < url.length; i++) {
 				DataSourceStorage.getInstance().clear();
-				DataSourceStorage.getInstance().add("DataSource0",
-						"Barcode source|" + url[i] + "|5|2|true");
-				DataSourceStorage.getInstance().setCustomDataSourceSelected(
-						true);
+				DataSource newDs = new DataSource("Barcode source", url[i],
+						DataSource.TYPE.values()[5],
+						DataSource.DISPLAY.values()[2], true);
+				DataSourceStorage.getInstance().add(newDs);
 			}
 		}
 	}
@@ -113,7 +146,6 @@ public class PluginLoaderActivity extends Activity {
 	@Override
 	protected void onDestroy() {
 		PluginLoader.getInstance().unBindServices();
-		PluginLoader.getInstance().setActivity(null);
 		super.onDestroy();
 	}
 
@@ -130,5 +162,29 @@ public class PluginLoaderActivity extends Activity {
 		PluginLoader.getInstance().loadPlugin(PluginType.MARKER);
 		PluginLoader.getInstance().loadPlugin(PluginType.BOOTSTRAP_PHASE_2);
 		PluginLoader.getInstance().loadPlugin(PluginType.DATAHANDLER);
+	}
+
+	/**
+	 * Fills a list with installed Plugins
+	 */
+	private void getInstalledPluginsByName(String name) {
+		PluginType[] allPluginTypes = PluginType.values();
+		for (PluginType pluginType : allPluginTypes) {
+			PackageManager packageManager = getPackageManager();
+			Intent baseIntent = new Intent(pluginType.getActionName());
+			List<ResolveInfo> list = packageManager.queryIntentServices(
+					baseIntent, PackageManager.GET_RESOLVED_FILTER);
+
+			for (ResolveInfo resolveInfo : list) {
+				String lable = (String) resolveInfo.loadLabel(packageManager);
+				if (lable.equalsIgnoreCase(name)) {
+					Plugin plugin = new Plugin(PluginStatus.Activated,
+						resolveInfo.serviceInfo,
+						lable,
+						resolveInfo.loadIcon(packageManager), pluginType);
+					MainActivity.getPlugins().add(plugin);
+				}
+			}
+		}
 	}
 }

@@ -24,8 +24,9 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.mixare.MixContext;
 import org.mixare.MixView;
-import org.mixare.POIMarker;
+import org.mixare.marker.POIMarker;
 import org.mixare.data.DataHandler;
 import org.mixare.data.DataSource;
 import org.mixare.lib.HtmlUnescape;
@@ -81,7 +82,7 @@ public class WikiDataProcessor extends DataHandler implements DataProcessor{
 				//no unique ID is provided by the web service according to http://www.geonames.org/export/wikipedia-webservice.html
 				ma = new POIMarker(
 						"",
-						HtmlUnescape.unescapeHTML(jo.getString("title"), 0), 
+						HtmlUnescape.unescapeHTML(jo.getString("title")), 
 						jo.getDouble("lat"), 
 						jo.getDouble("lng"), 
 						jo.getDouble("elevation"), 

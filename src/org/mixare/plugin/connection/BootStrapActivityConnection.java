@@ -28,6 +28,7 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.util.Log;
 
 /**
  * A plugin loader + binder for bootstrap plugins (plugins that are loaded on start)
@@ -41,7 +42,6 @@ public class BootStrapActivityConnection extends PluginConnection implements Act
 	
 	@Override
 	public void startActivityForResult(Activity activity) {
-		PluginLoader.getInstance().decreasePendingActivitiesOnResult();
 		if(activityIntent == null){
 			throw new PluginNotFoundException();
 		}
@@ -58,9 +58,8 @@ public class BootStrapActivityConnection extends PluginConnection implements Act
 		iBootStrap = IBootStrap.Stub.asInterface(service);
 		try {
 			buildIntent();
-			String pluginName = iBootStrap.getPluginName();
+			String pluginName = iBootStrap.getActivityPackage() + name.getShortClassName();
 			storeFoundPlugin(pluginName);
-			PluginLoader.getInstance().increasePendingActivitiesOnResult();
 			PluginLoader.getInstance().startPlugin(getPluginType(), pluginName);
 		} catch (RemoteException e) {
 			throw new RuntimeException(e);
